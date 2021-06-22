@@ -7,7 +7,8 @@ import org.litote.kmongo.KMongo
 import org.litote.kmongo.getCollection
 
 private val client = KMongo.createClient()
-private val database = client.getDatabase("MemesMagicDB")
+private val db =  client.getDatabase("MemesMagicDB")
+private val database =  client.getDatabase("Meme")
 
 
 // ============ COLLECTIONS =============
