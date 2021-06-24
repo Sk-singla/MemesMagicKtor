@@ -1,6 +1,5 @@
 package com.samarth.data.database
 
-import com.samarth.data.checkIfUserExists
 import com.samarth.models.Post
 import com.samarth.models.User
 import com.samarth.models.UserInfo

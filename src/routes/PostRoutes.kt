@@ -1,10 +1,7 @@
 package com.samarth.routes
 
 import com.samarth.data.*
-import com.samarth.data.database.addMeme
-import com.samarth.data.database.deleteAllPostOfUser
-import com.samarth.data.database.getAllPostsOfUser
-import com.samarth.data.database.uploadPost
+import com.samarth.data.database.*
 import com.samarth.data.models.Meme
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.response.SimpleResponse
@@ -26,6 +23,7 @@ const val CREATE_POST = "$POST/create"
 const val DELETE_ALL_POST_OF_USER = "$POST/deleteAll"
 const val GET_ALL_POST = "$POST/get"
 
+
 @Location(CREATE_POST)
 class PostCreateRoute
 
@@ -34,6 +32,7 @@ class PostAllDeleteRoute(val email:String)
 
 @Location(GET_ALL_POST)
 class PostGetAllRoute
+
 
 
 fun Route.PostRoutes(){
@@ -51,11 +50,6 @@ fun Route.PostRoutes(){
 
             try {
 
-                if(postRequest.postType != PostType.TEXT && postRequest.mediaLink == null){
-                    call.respond(HttpStatusCode.BadRequest,SimpleResponse<String>(false,"Media Link not Provided for Media Post!"))
-                    return@post
-                }
-
                 val email = call.principal<UserIdPrincipal>()!!.name
                 val userInfo = findUserByEmail(email)!!
                 val isPosted = uploadPost(
@@ -65,19 +59,18 @@ fun Route.PostRoutes(){
                         postRequest.time,
                         tags = postRequest.tags,
                         mediaLink = postRequest.mediaLink,
-                        text = postRequest.text
+                        description = postRequest.desctiption
                     )
                 )
 
-                // TO MAKE MEME'S API
-                if(postRequest.postType != PostType.TEXT){
-                    addMeme(Meme(postRequest.mediaLink!!, getHash(email)))
-                }
+
+                addMeme(Meme(postRequest.mediaLink, getHash(email)))
+
 
                 if(isPosted){
                     call.respond(
                         HttpStatusCode.OK,
-                        SimpleResponse<String>(true, "Post Uploaded Successfully!")
+                        SimpleResponse<String>(true, "","Post Uploaded Successfully!")
                     )
                 } else {
                     call.respond(
@@ -108,6 +101,10 @@ fun Route.PostRoutes(){
         }
 
 
+        // ================ GET FEED ================
+
+
+
     }
 
 
@@ -121,6 +118,7 @@ fun Route.PostRoutes(){
                         HttpStatusCode.OK,
                         SimpleResponse<String>(
                             true,
+                            "",
                             "Successfully Deleted All posts of a User!"
                         )
                     )

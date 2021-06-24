@@ -2,6 +2,9 @@ package com.samarth.routes
 
 import com.samarth.authentication.JwtService
 import com.samarth.data.*
+import com.samarth.data.database.findUserByEmail
+import com.samarth.data.database.getAllUsers
+import com.samarth.data.database.registerUser
 import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.data.models.response.SimpleResponse
@@ -130,7 +133,7 @@ fun Route.UserRoutes(
 
         get<UserAllGetRoute>{
             try {
-                call.respond(SimpleResponse(true,"All Users",getAllUsers()))
+                call.respond(SimpleResponse(true,"All Users", getAllUsers()))
             }catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<List<User>>(false, e.message ?: "Some Problem Occurred!"))
             }

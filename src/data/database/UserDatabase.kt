@@ -1,6 +1,5 @@
-package com.samarth.data
+package com.samarth.data.database
 
-import com.samarth.data.database.usersCol
 import com.samarth.models.User
 import com.samarth.models.UserInfo
 import com.samarth.others.getHash

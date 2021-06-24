@@ -1,10 +1,8 @@
 package com.samarth
 
 import com.samarth.authentication.JwtService
-import com.samarth.authentication.googleOauthProvider
-import com.samarth.data.checkIfUserExists
-import com.samarth.routes.PostRoutes
-import com.samarth.routes.UserRoutes
+import com.samarth.data.database.checkIfUserExists
+import com.samarth.routes.*
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -17,10 +15,8 @@ import io.ktor.http.cio.websocket.*
 import java.time.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
-import io.ktor.client.*
 import io.ktor.gson.*
 import io.ktor.features.*
-import java.nio.file.attribute.UserPrincipal
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -90,6 +86,8 @@ fun Application.module(testing: Boolean = false) {
 
         UserRoutes(jwtService)
         PostRoutes()
+        MemeRoutes()
+        FeedRoute()
 
 
 
