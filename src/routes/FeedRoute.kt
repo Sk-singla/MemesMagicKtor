@@ -28,7 +28,7 @@ fun Route.FeedRoute(){
 
     authenticate("jwt") {
 
-        post<FeedGetRoute> {
+        get<FeedGetRoute> {
 
             try {
                 val email = call.principal<UserIdPrincipal>()!!.name
