@@ -36,6 +36,7 @@ class UserLoginRoute
 @Location(GET_USER)
 class UserAllGetRoute
 
+
 @Location("$GET_USER/{email}")
 class UserSingleGetRoute(val email:String)
 
@@ -140,6 +141,10 @@ fun Route.UserRoutes(
         }
 
 
+    }
+
+
+    authenticate("jwt","admin_auth") {
 
         // ============= GET USER BY EMAIL ==============
         get<UserSingleGetRoute>{ route->
