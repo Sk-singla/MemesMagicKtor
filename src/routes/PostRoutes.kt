@@ -30,8 +30,8 @@ class PostCreateRoute
 @Location("$DELETE_ALL_POST_OF_USER/{email}")
 class PostAllDeleteRoute(val email:String)
 
-@Location(GET_ALL_POST)
-class PostGetAllRoute
+@Location("$GET_ALL_POST/{email}")
+class PostGetAllRoute(val email:String)
 
 
 
@@ -93,15 +93,13 @@ fun Route.PostRoutes(){
         // ============== GET ALL POSTS OF A USER =============
         get<PostGetAllRoute> { route->
             try {
-                val email = call.principal<UserIdPrincipal>()!!.name
-                call.respond(SimpleResponse<List<Post>>(true,"",getAllPostsOfUser(email)))
+                call.respond(SimpleResponse<List<Post>>(true,"",getAllPostsOfUser(route.email)))
             }catch (e: Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<List<Post>>(false,e.message ?: "Some Problem Occurred!"))
             }
         }
 
 
-        // ================ GET FEED ================
 
 
 
