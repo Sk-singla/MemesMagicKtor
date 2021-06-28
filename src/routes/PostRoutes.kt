@@ -23,6 +23,7 @@ const val CREATE_POST = "$POST/create"
 const val DELETE_ALL_POST_OF_USER = "$POST/deleteAll"
 const val GET_ALL_POST = "$POST/get"
 const val ADD_LIKE = "$POST/like"
+const val REMOVE_LIKE = "$POST/dislike"
 
 
 @Location(CREATE_POST)
@@ -37,6 +38,8 @@ class PostGetAllRoute(val email:String)
 @Location("$ADD_LIKE/{postId}")
 class PostAddLike(val postId: String)
 
+@Location("$REMOVE_LIKE/{postId}")
+class PostRemoveLike(val postId: String)
 
 
 fun Route.PostRoutes(){
@@ -122,6 +125,21 @@ fun Route.PostRoutes(){
                 }
             }catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message ?: "Can't Like Post!!"))
+            }
+
+        }
+
+        post<PostRemoveLike>{ route->
+            try{
+                val email = call.principal<UserIdPrincipal>()!!.name
+                val user = findUserByEmail(email)!!
+                if(removePostLike(user.userInfo,route.postId)){
+                    call.respond(HttpStatusCode.OK,SimpleResponse<UserInfo>(true,"",user.userInfo))
+                } else{
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Can't dislike Post!!"))
+                }
+            }catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message ?: "Can't dislike Post!!"))
             }
 
         }

@@ -3,6 +3,7 @@ package com.samarth.data.database
 import com.samarth.models.Post
 import com.samarth.models.User
 import com.samarth.models.UserInfo
+import com.sun.org.apache.xpath.internal.operations.Bool
 import org.litote.kmongo.*
 
 
@@ -47,6 +48,14 @@ suspend fun addPostLike(userInfo: UserInfo,postId: String):Boolean{
     return postsCol.updateOneById(
         postId,
         addToSet(Post::likedBy,userInfo)
+    ).wasAcknowledged()
+}
+
+
+suspend fun removePostLike(userInfo: UserInfo,postId: String):Boolean{
+    return postsCol.updateOneById(
+        postId,
+        pull(Post::likedBy,userInfo)
     ).wasAcknowledged()
 }
 
