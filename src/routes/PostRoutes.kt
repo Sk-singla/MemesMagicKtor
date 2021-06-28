@@ -6,6 +6,7 @@ import com.samarth.data.models.Meme
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.response.SimpleResponse
 import com.samarth.models.Post
+import com.samarth.models.UserInfo
 import com.samarth.others.API_VERSION
 import com.samarth.others.getHash
 import io.ktor.application.*
@@ -115,12 +116,12 @@ fun Route.PostRoutes(){
                 val email = call.principal<UserIdPrincipal>()!!.name
                 val user = findUserByEmail(email)!!
                 if(addPostLike(user.userInfo,route.postId)){
-                    call.respond(HttpStatusCode.OK,SimpleResponse<String>(true,"","Post Liked Successfully"))
+                    call.respond(HttpStatusCode.OK,SimpleResponse<UserInfo>(true,"",user.userInfo))
                 } else{
-                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"","Can't Like Post!!"))
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Can't Like Post!!"))
                 }
             }catch (e:Exception){
-                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"",e.message ?: "Can't Like Post!!"))
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message ?: "Can't Like Post!!"))
             }
 
         }
