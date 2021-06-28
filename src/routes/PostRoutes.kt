@@ -65,7 +65,7 @@ fun Route.PostRoutes(){
                             postRequest.time,
                             tags = postRequest.tags,
                             mediaLink = postRequest.mediaLink,
-                            description = postRequest.desctiption
+                            description = postRequest.description
                         )
                 val isPosted = uploadPost(post)
 
