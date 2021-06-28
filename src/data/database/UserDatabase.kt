@@ -1,5 +1,6 @@
 package com.samarth.data.database
 
+import com.mongodb.client.model.UpdateOptions
 import com.samarth.models.User
 import com.samarth.models.UserInfo
 import com.samarth.others.getHash
@@ -11,7 +12,7 @@ suspend fun registerUser(user:User):Boolean{
     return usersCol.insertOne(user).wasAcknowledged()
 }
 
-suspend fun findUserByEmail(email: String):User?{
+fun findUserByEmail(email: String):User?{
     return usersCol.findOne(User::userInfo / UserInfo::email eq email)
 }
 
@@ -33,3 +34,9 @@ fun getUserInfo(email: String):UserInfo?{
     return  usersCol.find(User::userInfo / UserInfo::email eq email , UserInfo::class.java ).toList().single()
 }
 
+fun incrementPostCount(email: String):Boolean{
+    return usersCol.updateOne(
+        User::userInfo / UserInfo::email eq email,
+        inc(User::postCount,1)
+    ).wasAcknowledged()
+}

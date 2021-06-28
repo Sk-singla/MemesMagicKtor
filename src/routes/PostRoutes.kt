@@ -6,7 +6,6 @@ import com.samarth.data.models.Meme
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.response.SimpleResponse
 import com.samarth.models.Post
-import com.samarth.models.enums.PostType
 import com.samarth.others.API_VERSION
 import com.samarth.others.getHash
 import io.ktor.application.*
@@ -22,6 +21,7 @@ const val POST = "$API_VERSION/posts"
 const val CREATE_POST = "$POST/create"
 const val DELETE_ALL_POST_OF_USER = "$POST/deleteAll"
 const val GET_ALL_POST = "$POST/get"
+const val ADD_LIKE = "$POST/like"
 
 
 @Location(CREATE_POST)
@@ -32,6 +32,9 @@ class PostAllDeleteRoute(val email:String)
 
 @Location("$GET_ALL_POST/{email}")
 class PostGetAllRoute(val email:String)
+
+@Location("$ADD_LIKE/{postId}")
+class PostAddLike(val postId: String)
 
 
 
@@ -51,27 +54,34 @@ fun Route.PostRoutes(){
             try {
 
                 val email = call.principal<UserIdPrincipal>()!!.name
-                val userInfo = findUserByEmail(email)!!
-                val isPosted = uploadPost(
-                    Post(
-                        userInfo.userInfo,
-                        postRequest.postType,
-                        postRequest.time,
-                        tags = postRequest.tags,
-                        mediaLink = postRequest.mediaLink,
-                        description = postRequest.desctiption
-                    )
-                )
+                val user = findUserByEmail(email)!!
+                val post = Post(
+                            user.userInfo,
+                            postRequest.postType,
+                            postRequest.time,
+                            tags = postRequest.tags,
+                            mediaLink = postRequest.mediaLink,
+                            description = postRequest.desctiption
+                        )
+                val isPosted = uploadPost(post)
 
 
                 addMeme(Meme(postRequest.mediaLink, getHash(email)))
 
 
                 if(isPosted){
-                    call.respond(
-                        HttpStatusCode.OK,
-                        SimpleResponse<String>(true, "","Post Uploaded Successfully!")
-                    )
+                    if(incrementPostCount(email)){
+                        call.respond(
+                            HttpStatusCode.OK,
+                            SimpleResponse<String>(true, "","Post Uploaded Successfully!")
+                        )
+                    } else {
+                        deletePost(postId = post.id)
+                        call.respond(
+                            HttpStatusCode.Conflict,
+                            SimpleResponse<String>(false, "Sorry! Cannot upload Post")
+                        )
+                    }
                 } else {
                     call.respond(
                         HttpStatusCode.Conflict,
@@ -97,6 +107,22 @@ fun Route.PostRoutes(){
             }catch (e: Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<List<Post>>(false,e.message ?: "Some Problem Occurred!"))
             }
+        }
+
+
+        post<PostAddLike>{ route->
+            try{
+                val email = call.principal<UserIdPrincipal>()!!.name
+                val user = findUserByEmail(email)!!
+                if(addPostLike(user.userInfo,route.postId)){
+                    call.respond(HttpStatusCode.OK,SimpleResponse<String>(true,"","Post Liked Successfully"))
+                } else{
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"","Can't Like Post!!"))
+                }
+            }catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"",e.message ?: "Can't Like Post!!"))
+            }
+
         }
 
 

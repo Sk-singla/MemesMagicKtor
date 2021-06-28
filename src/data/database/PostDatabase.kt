@@ -3,9 +3,7 @@ package com.samarth.data.database
 import com.samarth.models.Post
 import com.samarth.models.User
 import com.samarth.models.UserInfo
-import org.litote.kmongo.div
-import org.litote.kmongo.eq
-import org.litote.kmongo.inc
+import org.litote.kmongo.*
 
 
 suspend fun uploadPost(post: Post):Boolean {
@@ -41,9 +39,14 @@ suspend fun deleteAllPostOfUser(email: String):Boolean{
 }
 
 
+suspend fun deletePost(postId:String){
+    postsCol.deleteOneById(postId)
+}
 
-
-
-
-
+suspend fun addPostLike(userInfo: UserInfo,postId: String):Boolean{
+    return postsCol.updateOneById(
+        postId,
+        addToSet(Post::likedBy,userInfo)
+    ).wasAcknowledged()
+}
 
