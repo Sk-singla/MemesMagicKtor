@@ -7,5 +7,5 @@ data class PostRequest(
     val time:Long,
     val tags:List<String>?=null,
     val mediaLink:String,
-    val desctiption:String?=null,
+    val description:String?=null,
 )
