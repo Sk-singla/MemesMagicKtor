@@ -73,6 +73,10 @@ fun removeFollowing(follower:UserInfo,toUnFollow:UserInfo):Boolean{
 }
 
 
+fun findUserByName(name:String):List<UserInfo> {
+    return usersCol.find( User::userInfo / UserInfo::name regex ".*$name.*").map{ it.userInfo }.toList()
+}
+
 
 
 
