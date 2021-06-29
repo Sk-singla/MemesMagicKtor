@@ -196,13 +196,13 @@ fun Route.PostRoutes(){
                 val userInfo = findUserByEmail(email)!!.userInfo
 
                 if(likeComment(route.postId,route.commentId,userInfo)){
-                    call.respond(HttpStatusCode.OK,SimpleResponse(true,"","Comment Like SuccessFully"))
+                    call.respond(HttpStatusCode.OK,SimpleResponse<UserInfo>(true,"",userInfo))
                 } else {
-                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't like Comment!!"))
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Can't like Comment!!"))
                 }
 
             } catch (e:Exception){
-                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message ?: "Can't like Comment!!"))
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message ?: "Can't like Comment!!"))
             }
 
         }
@@ -214,13 +214,13 @@ fun Route.PostRoutes(){
                 val userInfo = findUserByEmail(email)!!.userInfo
 
                 if(removeLikeComment(route.postId,route.commentId,userInfo)){
-                    call.respond(HttpStatusCode.OK,SimpleResponse(true,"","Comment Disliked SuccessFully"))
+                    call.respond(HttpStatusCode.OK,SimpleResponse<UserInfo>(true,"",userInfo))
                 } else {
-                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't dislike Comment!!"))
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Can't dislike Comment!!"))
                 }
 
             } catch (e:Exception){
-                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message ?: "Can't dislike Comment!!"))
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message ?: "Can't dislike Comment!!"))
             }
 
         }
