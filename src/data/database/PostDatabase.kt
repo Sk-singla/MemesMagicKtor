@@ -69,17 +69,22 @@ suspend fun addComment(postId:String, comment:Comment):Boolean{
 
 
 suspend fun likeComment(postId: String,commentId:String,userInfo: UserInfo):Boolean {
+    val comments = getPostById(postId)?.comments
+    comments?.find { it.id == commentId }?.likedBy?.add(userInfo)
     return postsCol.updateOne(
-        "{\"id\":$postId, \"comments\": {\"id\":$commentId } }",
-        addToSet(Comment::likedBy,userInfo)
+        Post::id eq postId,
+        setValue(Post::comments,comments)
     ).wasAcknowledged()
 }
 
+suspend fun getPostById(postId: String) = postsCol.findOneById(postId)
 
 suspend fun removeLikeComment(postId: String,commentId:String,userInfo: UserInfo):Boolean {
+    val comments = getPostById(postId)?.comments
+    comments?.find { it.id == commentId }?.likedBy?.remove(userInfo)
     return postsCol.updateOne(
-        "{\"id\":$postId, \"comments\": {\"id\":$commentId } }",
-        pull(Comment::likedBy,userInfo)
+        Post::id eq postId,
+        setValue(Post::comments,comments)
     ).wasAcknowledged()
 }
 

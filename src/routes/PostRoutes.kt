@@ -22,6 +22,7 @@ import java.lang.Exception
 
 const val POST = "$API_VERSION/posts"
 const val CREATE_POST = "$POST/create"
+const val GET_SINGLE_POST = "$POST/get/single"
 const val DELETE_ALL_POST_OF_USER = "$POST/deleteAll"
 const val GET_ALL_POST = "$POST/get"
 const val ADD_LIKE = "$POST/like"
@@ -38,6 +39,9 @@ class PostCreateRoute
 
 @Location("$DELETE_ALL_POST_OF_USER/{email}")
 class PostAllDeleteRoute(val email:String)
+
+@Location("$GET_SINGLE_POST/{postId}")
+class PostGetSingleRoute(val postId:String)
 
 @Location("$GET_ALL_POST/{email}")
 class PostGetAllRoute(val email:String)
@@ -217,6 +221,21 @@ fun Route.PostRoutes(){
 
             } catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message ?: "Can't dislike Comment!!"))
+            }
+
+        }
+
+        get<PostGetSingleRoute>{ route ->
+
+            try {
+                val post = getPostById(route.postId)
+                if(post == null){
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse<Post>(false,"Wrong Post Id"))
+                } else {
+                    call.respond(HttpStatusCode.OK, SimpleResponse<Post>(true, "", post))
+                }
+            } catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict, SimpleResponse<Post>(false,e.message?:"Some Problem Occurred!!"))
             }
 
         }
