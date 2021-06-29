@@ -40,3 +40,61 @@ fun incrementPostCount(email: String):Boolean{
         inc(User::postCount,1)
     ).wasAcknowledged()
 }
+
+
+fun addFollower(user:UserInfo,follower:UserInfo):Boolean{
+    return usersCol.updateOne(
+        User::userInfo / UserInfo::email eq user.email,
+        addToSet(User::followers,follower)
+    ).wasAcknowledged()
+}
+
+
+fun addFollowing(follower:UserInfo,toFollow:UserInfo):Boolean{
+    return usersCol.updateOne(
+        User::userInfo / UserInfo::email eq follower.email,
+        addToSet(User::followers,toFollow)
+    ).wasAcknowledged()
+}
+
+fun removeFollower(user:UserInfo,follower:UserInfo):Boolean{
+    return usersCol.updateOne(
+        User::userInfo / UserInfo::email eq user.email,
+        pull(User::followers,follower)
+    ).wasAcknowledged()
+}
+
+
+fun removeFollowing(follower:UserInfo,toUnFollow:UserInfo):Boolean{
+    return usersCol.updateOne(
+        User::userInfo / UserInfo::email eq follower.email,
+        pull(User::followers,toUnFollow)
+    ).wasAcknowledged()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

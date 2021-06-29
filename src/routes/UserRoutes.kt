@@ -2,9 +2,7 @@ package com.samarth.routes
 
 import com.samarth.authentication.JwtService
 import com.samarth.data.*
-import com.samarth.data.database.findUserByEmail
-import com.samarth.data.database.getAllUsers
-import com.samarth.data.database.registerUser
+import com.samarth.data.database.*
 import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.data.models.response.SimpleResponse
@@ -26,6 +24,9 @@ const val USER = "$API_VERSION/user"
 const val USER_REGISTER = "$USER/register"
 const val USER_LOGIN = "$USER/login"
 const val GET_USER = "$USER/get"
+const val FOLLOW_USER = "$USER/follow"
+const val UNFOLLOW_USER = "$USER/unfollow"
+
 
 @Location(USER_REGISTER)
 class UserRegisterRoute
@@ -35,6 +36,12 @@ class UserLoginRoute
 
 @Location(GET_USER)
 class UserAllGetRoute
+
+@Location("$FOLLOW_USER/{email}")
+class UserFollowRoute(val email: String)
+
+@Location("$UNFOLLOW_USER/{email}")
+class UserUnfollowRoute(val email: String)
 
 
 @Location("$GET_USER/{email}")
@@ -162,6 +169,64 @@ fun Route.UserRoutes(
         }
 
     }
+
+    authenticate("jwt"){
+
+        post<UserFollowRoute> { route ->
+            try {
+                val userToFollow = findUserByEmail(route.email)
+                if(userToFollow == null){
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"User Not Found"))
+                    return@post
+                }
+
+                val curUserEmail = call.principal<UserIdPrincipal>()!!.name
+                val curUser = findUserByEmail(curUserEmail)!!
+
+                if(addFollower(userToFollow.userInfo,curUser.userInfo)){
+                    if(addFollowing(curUser.userInfo,userToFollow.userInfo)){
+                        call.respond(HttpStatusCode.OK,SimpleResponse<UserInfo>(false,"",userToFollow.userInfo))
+                    } else {
+                        removeFollower(userToFollow.userInfo,curUser.userInfo)
+                        call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Some Problem Occurred!!"))
+                    }
+                } else {
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Some Problem Occurred!!"))
+                }
+
+            }catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message?: "Some Problem Occurred!"))
+            }
+        }
+    }
+
+    post<UserUnfollowRoute> { route ->
+        try {
+            val userToUnFollow = findUserByEmail(route.email)
+            if(userToUnFollow == null){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"User Not Found"))
+                return@post
+            }
+
+            val curUserEmail = call.principal<UserIdPrincipal>()!!.name
+            val curUser = findUserByEmail(curUserEmail)!!
+
+            if(removeFollower(userToUnFollow.userInfo,curUser.userInfo)){
+                if(removeFollowing(curUser.userInfo,userToUnFollow.userInfo)){
+                    call.respond(HttpStatusCode.OK,SimpleResponse<UserInfo>(false,"",userToUnFollow.userInfo))
+                } else {
+                    addFollower(userToUnFollow.userInfo,curUser.userInfo)
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Some Problem Occurred!!"))
+                }
+            } else {
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Some Problem Occurred!!"))
+            }
+
+        }catch (e:Exception){
+            call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message?: "Some Problem Occurred!"))
+        }
+    }
+}
 
 
 
