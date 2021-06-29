@@ -187,9 +187,15 @@ fun Route.UserRoutes(
                 val curUserEmail = call.principal<UserIdPrincipal>()!!.name
                 val curUser = findUserByEmail(curUserEmail)!!
 
+                if(curUser.followings.contains(userToFollow.userInfo)){
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse<UserInfo>(false, "Already Following!!"))
+                    return@post
+                }
+
+
                 if (addFollower(userToFollow.userInfo, curUser.userInfo)) {
                     if (addFollowing(curUser.userInfo, userToFollow.userInfo)) {
-                        call.respond(HttpStatusCode.OK, SimpleResponse<UserInfo>(false, "", userToFollow.userInfo))
+                        call.respond(HttpStatusCode.OK, SimpleResponse<UserInfo>(true, "", userToFollow.userInfo))
                     } else {
                         removeFollower(userToFollow.userInfo, curUser.userInfo)
                         call.respond(
@@ -223,7 +229,7 @@ fun Route.UserRoutes(
 
                 if (removeFollower(userToUnFollow.userInfo, curUser.userInfo)) {
                     if (removeFollowing(curUser.userInfo, userToUnFollow.userInfo)) {
-                        call.respond(HttpStatusCode.OK, SimpleResponse<UserInfo>(false, "", userToUnFollow.userInfo))
+                        call.respond(HttpStatusCode.OK, SimpleResponse<UserInfo>(true, "", userToUnFollow.userInfo))
                     } else {
                         addFollower(userToUnFollow.userInfo, curUser.userInfo)
                         call.respond(
