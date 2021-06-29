@@ -53,7 +53,7 @@ fun addFollower(user:UserInfo,follower:UserInfo):Boolean{
 fun addFollowing(follower:UserInfo,toFollow:UserInfo):Boolean{
     return usersCol.updateOne(
         User::userInfo / UserInfo::email eq follower.email,
-        addToSet(User::followers,toFollow)
+        addToSet(User::followings,toFollow)
     ).wasAcknowledged()
 }
 
@@ -68,13 +68,13 @@ fun removeFollower(user:UserInfo,follower:UserInfo):Boolean{
 fun removeFollowing(follower:UserInfo,toUnFollow:UserInfo):Boolean{
     return usersCol.updateOne(
         User::userInfo / UserInfo::email eq follower.email,
-        pull(User::followers,toUnFollow)
+        pull(User::followings,toUnFollow)
     ).wasAcknowledged()
 }
 
 
 fun findUserByName(name:String):List<UserInfo> {
-    return usersCol.find( User::userInfo / UserInfo::name regex ".*$name.*").map{ it.userInfo }.toList()
+    return usersCol.find( User::userInfo / UserInfo::name regex "$name.*").map{ it.userInfo }.toList()
 }
 
 
