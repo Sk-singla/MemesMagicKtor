@@ -1,11 +1,13 @@
 package com.samarth.models
 
+import com.samarth.data.models.Comment
+import com.samarth.data.models.UserInfo
 import com.samarth.models.enums.PostType
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 
 data class Post(
-    val createdBy:UserInfo,
+    val createdBy: UserInfo,
     val postType:PostType,
     val time:Long,
     val likedBy:MutableList<UserInfo> = mutableListOf(),

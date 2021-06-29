@@ -1,8 +1,9 @@
 package com.samarth.data.database
 
+import com.samarth.data.models.Comment
 import com.samarth.models.Post
 import com.samarth.models.User
-import com.samarth.models.UserInfo
+import com.samarth.data.models.UserInfo
 import com.sun.org.apache.xpath.internal.operations.Bool
 import org.litote.kmongo.*
 
@@ -44,7 +45,7 @@ suspend fun deletePost(postId:String){
     postsCol.deleteOneById(postId)
 }
 
-suspend fun addPostLike(userInfo: UserInfo,postId: String):Boolean{
+suspend fun addPostLike(userInfo: UserInfo, postId: String):Boolean{
     return postsCol.updateOneById(
         postId,
         addToSet(Post::likedBy,userInfo)
@@ -52,10 +53,46 @@ suspend fun addPostLike(userInfo: UserInfo,postId: String):Boolean{
 }
 
 
-suspend fun removePostLike(userInfo: UserInfo,postId: String):Boolean{
+suspend fun removePostLike(userInfo: UserInfo, postId: String):Boolean{
     return postsCol.updateOneById(
         postId,
         pull(Post::likedBy,userInfo)
     ).wasAcknowledged()
 }
+
+suspend fun addComment(postId:String, comment:Comment):Boolean{
+    return postsCol.updateOneById(
+        postId,
+        addToSet(Post::comments,comment)
+    ).wasAcknowledged()
+}
+
+
+suspend fun likeComment(postId: String,commentId:String,userInfo: UserInfo):Boolean {
+    return postsCol.updateOne(
+        "{\"id\":$postId, \"comments\": {\"id\":$commentId } }",
+        addToSet(Comment::likedBy,userInfo)
+    ).wasAcknowledged()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

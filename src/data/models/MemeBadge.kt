@@ -1,4 +1,4 @@
-package com.samarth.models
+package com.samarth.data.models
 
 import com.samarth.models.enums.MemeBadgeType
 

@@ -7,7 +7,7 @@ import com.samarth.data.models.request.LoginRequest
 import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.data.models.response.SimpleResponse
 import com.samarth.models.User
-import com.samarth.models.UserInfo
+import com.samarth.data.models.UserInfo
 import com.samarth.others.API_VERSION
 import com.samarth.others.getHash
 import io.ktor.application.*
@@ -258,6 +258,7 @@ fun Route.UserRoutes(
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<List<UserInfo>>(true,e.message ?: "Some Problem Occurred!!"))
             }
         }
+
 
 
 

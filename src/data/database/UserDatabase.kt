@@ -1,8 +1,7 @@
 package com.samarth.data.database
 
-import com.mongodb.client.model.UpdateOptions
 import com.samarth.models.User
-import com.samarth.models.UserInfo
+import com.samarth.data.models.UserInfo
 import com.samarth.others.getHash
 import org.litote.kmongo.*
 
@@ -30,7 +29,7 @@ suspend fun getAllUsers():List<User>{
     return usersCol.find().toList()
 }
 
-fun getUserInfo(email: String):UserInfo?{
+fun getUserInfo(email: String): UserInfo?{
     return  usersCol.find(User::userInfo / UserInfo::email eq email , UserInfo::class.java ).toList().single()
 }
 
@@ -42,7 +41,7 @@ fun incrementPostCount(email: String):Boolean{
 }
 
 
-fun addFollower(user:UserInfo,follower:UserInfo):Boolean{
+fun addFollower(user: UserInfo, follower: UserInfo):Boolean{
     return usersCol.updateOne(
         User::userInfo / UserInfo::email eq user.email,
         addToSet(User::followers,follower)
@@ -50,14 +49,14 @@ fun addFollower(user:UserInfo,follower:UserInfo):Boolean{
 }
 
 
-fun addFollowing(follower:UserInfo,toFollow:UserInfo):Boolean{
+fun addFollowing(follower: UserInfo, toFollow: UserInfo):Boolean{
     return usersCol.updateOne(
         User::userInfo / UserInfo::email eq follower.email,
         addToSet(User::followings,toFollow)
     ).wasAcknowledged()
 }
 
-fun removeFollower(user:UserInfo,follower:UserInfo):Boolean{
+fun removeFollower(user: UserInfo, follower: UserInfo):Boolean{
     return usersCol.updateOne(
         User::userInfo / UserInfo::email eq user.email,
         pull(User::followers,follower)
@@ -65,7 +64,7 @@ fun removeFollower(user:UserInfo,follower:UserInfo):Boolean{
 }
 
 
-fun removeFollowing(follower:UserInfo,toUnFollow:UserInfo):Boolean{
+fun removeFollowing(follower: UserInfo, toUnFollow: UserInfo):Boolean{
     return usersCol.updateOne(
         User::userInfo / UserInfo::email eq follower.email,
         pull(User::followings,toUnFollow)

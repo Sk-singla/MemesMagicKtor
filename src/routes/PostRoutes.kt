@@ -2,11 +2,12 @@ package com.samarth.routes
 
 import com.samarth.data.*
 import com.samarth.data.database.*
+import com.samarth.data.models.Comment
 import com.samarth.data.models.Meme
 import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.response.SimpleResponse
 import com.samarth.models.Post
-import com.samarth.models.UserInfo
+import com.samarth.data.models.UserInfo
 import com.samarth.others.API_VERSION
 import com.samarth.others.getHash
 import io.ktor.application.*
@@ -24,6 +25,9 @@ const val DELETE_ALL_POST_OF_USER = "$POST/deleteAll"
 const val GET_ALL_POST = "$POST/get"
 const val ADD_LIKE = "$POST/like"
 const val REMOVE_LIKE = "$POST/dislike"
+const val COMMENT = "$API_VERSION/comments"
+const val ADD_COMMENT = "$COMMENT/add"
+const val LIKE_COMMENT = "$COMMENT/like"
 
 
 @Location(CREATE_POST)
@@ -40,6 +44,12 @@ class PostAddLike(val postId: String)
 
 @Location("$REMOVE_LIKE/{postId}")
 class PostRemoveLike(val postId: String)
+
+@Location("$ADD_COMMENT/{postId}")
+class PostCommentAddRoute(val postId: String)
+
+@Location("$LIKE_COMMENT/{postId}/{commentId}")
+class PostCommentLikeRoute(val postId: String,val commentId:String)
 
 
 fun Route.PostRoutes(){
@@ -140,6 +150,45 @@ fun Route.PostRoutes(){
                 }
             }catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message ?: "Can't dislike Post!!"))
+            }
+
+        }
+
+
+        post<PostCommentAddRoute> { route ->
+            val comment = try {
+                call.receive<Comment>()
+            } catch (e:Exception){
+                call.respond(HttpStatusCode.BadRequest,SimpleResponse<String>(false,"Missing Fields in Body!!"))
+                return@post
+            }
+
+            try {
+                if(addComment(route.postId,comment)){
+                    call.respond(HttpStatusCode.OK,SimpleResponse(true,"","Comment Added SuccessFully"))
+                } else {
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't Add Comment!!"))
+                }
+
+            }catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message?:"Can't Add Comment!!"))
+            }
+        }
+
+
+        post<PostCommentLikeRoute>{ route ->
+            try {
+                val email = call.principal<UserIdPrincipal>()!!.name
+                val userInfo = findUserByEmail(email)!!.userInfo
+
+                if(likeComment(route.postId,route.commentId,userInfo)){
+                    call.respond(HttpStatusCode.OK,SimpleResponse(true,"","Comment Like SuccessFully"))
+                } else {
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't like Comment!!"))
+                }
+
+            } catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message ?: "Can't like Comment!!"))
             }
 
         }

@@ -1,8 +1,9 @@
-package com.samarth.models
+package com.samarth.data.models
 
 data class Comment(
     val userInfo: UserInfo,
     val text:String,
     val time:Long,
-    val likedBy:List<UserInfo>
+    val likedBy:MutableList<UserInfo> = mutableListOf(),
+    val id:String
 )
