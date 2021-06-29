@@ -28,6 +28,8 @@ const val REMOVE_LIKE = "$POST/dislike"
 const val COMMENT = "$API_VERSION/comments"
 const val ADD_COMMENT = "$COMMENT/add"
 const val LIKE_COMMENT = "$COMMENT/like"
+const val REMOVE_LIKE_OF_COMMENT = "$COMMENT/dislike"
+
 
 
 @Location(CREATE_POST)
@@ -51,6 +53,8 @@ class PostCommentAddRoute(val postId: String)
 @Location("$LIKE_COMMENT/{postId}/{commentId}")
 class PostCommentLikeRoute(val postId: String,val commentId:String)
 
+@Location("$REMOVE_LIKE_OF_COMMENT/{postId}/{commentId}")
+class PostCommentRemoveLikeRoute(val postId: String,val commentId:String)
 
 fun Route.PostRoutes(){
 
@@ -189,6 +193,24 @@ fun Route.PostRoutes(){
 
             } catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message ?: "Can't like Comment!!"))
+            }
+
+        }
+
+
+        post<PostCommentRemoveLikeRoute>{ route ->
+            try {
+                val email = call.principal<UserIdPrincipal>()!!.name
+                val userInfo = findUserByEmail(email)!!.userInfo
+
+                if(removeLikeComment(route.postId,route.commentId,userInfo)){
+                    call.respond(HttpStatusCode.OK,SimpleResponse(true,"","Comment Disliked SuccessFully"))
+                } else {
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't dislike Comment!!"))
+                }
+
+            } catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message ?: "Can't dislike Comment!!"))
             }
 
         }

@@ -76,6 +76,15 @@ suspend fun likeComment(postId: String,commentId:String,userInfo: UserInfo):Bool
 }
 
 
+suspend fun removeLikeComment(postId: String,commentId:String,userInfo: UserInfo):Boolean {
+    return postsCol.updateOne(
+        "{\"id\":$postId, \"comments\": {\"id\":$commentId } }",
+        pull(Comment::likedBy,userInfo)
+    ).wasAcknowledged()
+}
+
+
+
 
 
 
