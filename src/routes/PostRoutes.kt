@@ -8,6 +8,7 @@ import com.samarth.data.models.request.PostRequest
 import com.samarth.data.models.response.SimpleResponse
 import com.samarth.models.Post
 import com.samarth.data.models.UserInfo
+import com.samarth.data.models.request.CommentRequest
 import com.samarth.others.API_VERSION
 import com.samarth.others.getHash
 import io.ktor.application.*
@@ -160,22 +161,27 @@ fun Route.PostRoutes(){
 
 
         post<PostCommentAddRoute> { route ->
-            val comment = try {
-                call.receive<Comment>()
+            val commentRequest = try {
+                call.receive<CommentRequest>()
             } catch (e:Exception){
-                call.respond(HttpStatusCode.BadRequest,SimpleResponse<String>(false,"Missing Fields in Body!!"))
+                call.respond(HttpStatusCode.BadRequest,SimpleResponse<Comment>(false,"Missing Fields in Body!!"))
                 return@post
             }
 
+
+
             try {
+                val email = call.principal<UserIdPrincipal>()!!.name
+                val userInfo = findUserByEmail(email)!!.userInfo
+                val comment = Comment(userInfo,commentRequest.text,commentRequest.time,id = commentRequest.id)
                 if(addComment(route.postId,comment)){
-                    call.respond(HttpStatusCode.OK,SimpleResponse(true,"","Comment Added SuccessFully"))
+                    call.respond(HttpStatusCode.OK,SimpleResponse<Comment>(true,"",comment))
                 } else {
-                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't Add Comment!!"))
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<Comment>(false,"Can't Add Comment!!"))
                 }
 
             }catch (e:Exception){
-                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message?:"Can't Add Comment!!"))
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<Comment>(false,e.message?:"Can't Add Comment!!"))
             }
         }
 
