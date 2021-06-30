@@ -1,18 +1,11 @@
 package com.samarth.data.database
 
-import com.mongodb.client.model.Sorts
 import com.samarth.data.models.Comment
-import com.samarth.data.models.Reward
 import com.samarth.models.Post
 import com.samarth.models.User
 import com.samarth.data.models.UserInfo
-import com.sun.org.apache.xpath.internal.operations.Bool
-import javafx.geometry.Pos
-import org.bson.conversions.Bson
-import org.jetbrains.annotations.NotNull
 import org.litote.kmongo.*
 import java.util.*
-import kotlin.reflect.KProperty
 
 
 suspend fun uploadPost(post: Post):Boolean {
