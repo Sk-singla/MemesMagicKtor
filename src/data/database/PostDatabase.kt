@@ -1,9 +1,11 @@
 package com.samarth.data.database
 
+import com.mongodb.client.model.BsonField
 import com.samarth.data.models.Comment
 import com.samarth.models.Post
 import com.samarth.models.User
 import com.samarth.data.models.UserInfo
+import org.bson.conversions.Bson
 import org.litote.kmongo.*
 import java.util.*
 
@@ -96,10 +98,7 @@ suspend fun getMostLikePostOfMonth():Post{
 
     return postsCol.aggregate<Post>(
         match(Post::time gte lastMonth),
-        project(
-            LikesCount::count from Post::likedBy.count(),
-        ),
-        sort(ascending(LikesCount::count))
+        sortByCount(Post::likedBy)
     ).toList().first()
 }
 
