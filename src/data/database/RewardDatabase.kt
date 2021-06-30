@@ -2,9 +2,7 @@ package com.samarth.data.database
 
 import com.samarth.data.models.Reward
 import org.litote.kmongo.EMPTY_BSON
-import org.litote.kmongo.MongoOperator
 import org.litote.kmongo.descending
-import java.util.*
 
 fun addReward(reward: Reward):Boolean {
     return rewardsCol.insertOne(reward).wasAcknowledged()

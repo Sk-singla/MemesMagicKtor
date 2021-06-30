@@ -8,7 +8,6 @@ import com.samarth.data.models.Reward
 import com.samarth.data.models.response.SimpleResponse
 import com.samarth.models.Post
 import com.samarth.models.enums.MemeBadgeType
-import com.samarth.models.enums.PostType
 import com.samarth.others.API_VERSION
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -16,16 +15,16 @@ import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.routing.post
-import javafx.geometry.Pos
 import java.lang.Exception
 
 
 const val REWARD = "$API_VERSION/rewards"
 const val ADD_REWARD = "$REWARD/add"
 const val ADD_MONTH_REWARD  = "$ADD_REWARD/month"
+
 const val GET_REWARD = "$REWARD/get"
 const val GET_LAST_MONTH_REWARD = "$GET_REWARD/month"
+
 const val REMOVE_REWARD = "$REWARD/remove"
 const val REMOVE_ALL_REWARD = "$REMOVE_REWARD/all"
 
