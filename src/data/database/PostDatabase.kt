@@ -103,15 +103,16 @@ suspend fun getMostLikePostOfMonth():Post{
 }
 
 
-fun getMonth(time:Long):Int{
+suspend fun getMostLikedPostOfTheYear():Post{
     val cal = Calendar.getInstance()
-    cal.timeInMillis = time
-    return cal.get(Calendar.MONTH)
-}
+    cal.add(Calendar.YEAR,-1)
+    val lastYear = cal.timeInMillis
 
-data class LikesCount(
-    val count:Int
-)
+    return postsCol.aggregate<Post>(
+        match(Post::time gte lastYear),
+        sort(descending(Post::likedBy))
+    ).toList().first()
+}
 
 
 
