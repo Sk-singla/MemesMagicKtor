@@ -41,7 +41,7 @@ fun Route.FeedRoute(){
 
                 call.respond(
                     HttpStatusCode.OK,
-                    SimpleResponse(true, "", posts)
+                    SimpleResponse(true, "", posts.shuffle())
                 )
             }catch (e:Exception){
                 call.respond(

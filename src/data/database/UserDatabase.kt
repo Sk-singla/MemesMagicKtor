@@ -73,10 +73,16 @@ fun removeFollowing(follower: UserInfo, toUnFollow: UserInfo):Boolean{
 
 
 fun findUserByName(name:String):List<UserInfo> {
-    return usersCol.find( User::userInfo / UserInfo::name regex "$name.*").map{ it.userInfo }.toList()
+    return usersCol.find( (User::userInfo / UserInfo::name).regex(name,"\$i")).map{ it.userInfo }.toList()
 }
 
+fun deleteAllUserAccounts():Long{
+    return usersCol.deleteMany(EMPTY_BSON).deletedCount
+}
 
+fun deleteSingleUser(email: String):Boolean{
+    return usersCol.deleteOne(User::userInfo / UserInfo::email eq email).wasAcknowledged()
+}
 
 
 

@@ -27,6 +27,9 @@ const val GET_USER = "$USER/get"
 const val FOLLOW_USER = "$USER/follow"
 const val UNFOLLOW_USER = "$USER/unfollow"
 const val SEARCH_USERS = "$USER/search"
+const val DELETE_USER = "$USER/delete"
+const val DELETE_SINGLE_USER = "$DELETE_USER/single"
+const val DELETE_ALL_USERS = "$DELETE_USER/all"
 
 
 @Location(USER_REGISTER)
@@ -37,6 +40,13 @@ class UserLoginRoute
 
 @Location(GET_USER)
 class UserAllGetRoute
+
+@Location(DELETE_ALL_USERS)
+class UserAllDeleteRoute
+
+@Location(DELETE_SINGLE_USER)
+class UserSingleDeleteRoute
+
 
 @Location("$FOLLOW_USER/{email}")
 class UserFollowRoute(val email: String)
@@ -69,6 +79,12 @@ fun Route.UserRoutes(
         }
 
         try {
+            if(findUserByEmail(email=registerUserRequest.email) != null){
+                SimpleResponse<String>(false, "Email Id Already Present!!")
+                return@post
+            }
+
+
             val user = User(
                 UserInfo(
                     registerUserRequest.name,
@@ -151,6 +167,24 @@ fun Route.UserRoutes(
             }
         }
 
+        delete<UserAllDeleteRoute>{
+            try {
+                call.respond(
+                    HttpStatusCode.OK,
+                    SimpleResponse<Long>(
+                        true,
+                        "Deleted Accounts of All Users",
+                        deleteAllUserAccounts()
+                    )
+                )
+            }catch (e:Exception){
+                call.respond(
+                    HttpStatusCode.Conflict,
+                    SimpleResponse<Long>(false, e.message ?: "Some Problem Occurred!")
+                )
+            }
+        }
+
 
     }
 
@@ -169,6 +203,28 @@ fun Route.UserRoutes(
 
             }catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse<User>(false,e.message?: "Some Problem Occurred!"))
+            }
+        }
+
+
+        delete<UserSingleDeleteRoute> {
+            try {
+                val email = call.principal<UserIdPrincipal>()!!.name
+                if(deleteSingleUser(email))
+                    call.respond(
+                        HttpStatusCode.OK,
+                        SimpleResponse(
+                            true,
+                            "",
+                            "Deleted user with email Id: $email",
+                        ))
+                else
+                    call.respond(
+                        HttpStatusCode.Conflict,
+                        SimpleResponse<String>(false,  "Some Problem Occurred!")
+                    )
+            }catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false, e.message ?: "Some Problem Occurred!"))
             }
         }
 
@@ -227,6 +283,11 @@ fun Route.UserRoutes(
                 val curUserEmail = call.principal<UserIdPrincipal>()!!.name
                 val curUser = findUserByEmail(curUserEmail)!!
 
+                if(!curUser.followings.contains(userToUnFollow.userInfo)){
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse<UserInfo>(false, "Already Not Following!!"))
+                    return@post
+                }
+
                 if (removeFollower(userToUnFollow.userInfo, curUser.userInfo)) {
                     if (removeFollowing(curUser.userInfo, userToUnFollow.userInfo)) {
                         call.respond(HttpStatusCode.OK, SimpleResponse<UserInfo>(true, "", userToUnFollow.userInfo))
@@ -253,17 +314,20 @@ fun Route.UserRoutes(
 
         get<UserSearchRoute> { route->
             try {
-                call.respond(HttpStatusCode.OK,SimpleResponse<List<UserInfo>>(true,"",findUserByName(route.searchKeyWord)))
+                val curUserEmail = call.principal<UserIdPrincipal>()!!.name
+
+                call.respond(HttpStatusCode.OK,SimpleResponse<List<UserInfo>>(
+                    true,
+                    "",
+                    findUserByName(route.searchKeyWord).filter { it.email != curUserEmail }
+                ))
             }catch (e:Exception){
-                call.respond(HttpStatusCode.Conflict,SimpleResponse<List<UserInfo>>(true,e.message ?: "Some Problem Occurred!!"))
+                call.respond(
+                    HttpStatusCode.Conflict,
+                    SimpleResponse<List<UserInfo>>(true, e.message ?: "Some Problem Occurred!!")
+                )
             }
         }
-
-
-
-
-
-
 
     }
 }
