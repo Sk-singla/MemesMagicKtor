@@ -1,11 +1,18 @@
 package com.samarth.data.database
 
+import com.mongodb.client.model.Sorts
 import com.samarth.data.models.Comment
+import com.samarth.data.models.Reward
 import com.samarth.models.Post
 import com.samarth.models.User
 import com.samarth.data.models.UserInfo
 import com.sun.org.apache.xpath.internal.operations.Bool
+import javafx.geometry.Pos
+import org.bson.conversions.Bson
+import org.jetbrains.annotations.NotNull
 import org.litote.kmongo.*
+import java.util.*
+import kotlin.reflect.KProperty
 
 
 suspend fun uploadPost(post: Post):Boolean {
@@ -89,7 +96,31 @@ suspend fun removeLikeComment(postId: String,commentId:String,userInfo: UserInfo
 }
 
 
+suspend fun getMostLikePostOfMonth():Post{
+    val cal = Calendar.getInstance()
+    cal.add(Calendar.MONTH,-1)
+    val lastMonth = cal.timeInMillis
 
+    return postsCol.aggregate<Post>(
+        match(Post::time gte lastMonth),
+        project(
+            LikesCount::count from Post::likedBy.count()
+        ),
+        sort(ascending(LikesCount::count)),
+        limit(1)
+    ).toList().first()
+}
+
+
+fun getMonth(time:Long):Int{
+    val cal = Calendar.getInstance()
+    cal.timeInMillis = time
+    return cal.get(Calendar.MONTH)
+}
+
+data class LikesCount(
+    val count:Int
+)
 
 
 

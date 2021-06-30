@@ -88,6 +88,7 @@ fun Application.module(testing: Boolean = false) {
         PostRoutes()
         MemeRoutes()
         FeedRoute()
+        RewardRoutes()
 
 
 
