@@ -98,7 +98,7 @@ suspend fun getMostLikePostOfMonth():Post{
 
     return postsCol.aggregate<Post>(
         match(Post::time gte lastMonth),
-        sortByCount(Post::likedBy)
+        sort(ascending(Post::likedBy))
     ).toList().first()
 }
 
