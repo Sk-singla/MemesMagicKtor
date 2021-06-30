@@ -84,7 +84,9 @@ fun deleteSingleUser(email: String):Boolean{
     return usersCol.deleteOne(User::userInfo / UserInfo::email eq email).wasAcknowledged()
 }
 
-
+fun updateUserInfo(userInfo:UserInfo):Boolean{
+    return usersCol.updateOne(User::userInfo / UserInfo::email eq userInfo.email, setValue(User::userInfo,userInfo)).wasAcknowledged()
+}
 
 
 

@@ -8,6 +8,7 @@ import com.samarth.data.models.request.RegisterUserRequest
 import com.samarth.data.models.response.SimpleResponse
 import com.samarth.models.User
 import com.samarth.data.models.UserInfo
+import com.samarth.data.models.request.UserInfoRequest
 import com.samarth.others.API_VERSION
 import com.samarth.others.getHash
 import io.ktor.application.*
@@ -30,6 +31,7 @@ const val SEARCH_USERS = "$USER/search"
 const val DELETE_USER = "$USER/delete"
 const val DELETE_SINGLE_USER = "$DELETE_USER/single"
 const val DELETE_ALL_USERS = "$DELETE_USER/all"
+const val UPDATE_USERINFO = "$USER/update"
 
 
 @Location(USER_REGISTER)
@@ -40,6 +42,9 @@ class UserLoginRoute
 
 @Location(GET_USER)
 class UserAllGetRoute
+
+@Location(UPDATE_USERINFO)
+class UserInfoUpdateRoute
 
 @Location(DELETE_ALL_USERS)
 class UserAllDeleteRoute
@@ -326,6 +331,32 @@ fun Route.UserRoutes(
                     HttpStatusCode.Conflict,
                     SimpleResponse<List<UserInfo>>(true, e.message ?: "Some Problem Occurred!!")
                 )
+            }
+        }
+
+        post<UserInfoUpdateRoute> {
+            val userInfoRequest = try {
+                call.receive<UserInfoRequest>()
+            }catch (e:Exception){
+                call.respond(HttpStatusCode.BadRequest,SimpleResponse<UserInfo>(false,"Missing Fields"))
+                return@post
+            }
+            try {
+                val email = call.principal<UserIdPrincipal>()!!.name
+                val prevUserInfo = findUserByEmail(email)!!.userInfo
+                val userInfo = UserInfo(
+                    userInfoRequest.name ?: prevUserInfo.name,
+                    email,
+                    userInfoRequest.profilePic ?: prevUserInfo.profilePic,
+                    userInfoRequest.bio ?: prevUserInfo.bio
+                )
+                if(updateUserInfo(userInfo)){
+                    call.respond(HttpStatusCode.OK,SimpleResponse<UserInfo>(true,"",userInfo))
+                } else {
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,"Some Problem Occurred!"))
+                }
+            } catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<UserInfo>(false,e.message ?: "Some Problem Occurred!"))
             }
         }
 
