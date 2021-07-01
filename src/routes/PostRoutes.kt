@@ -31,7 +31,7 @@ const val COMMENT = "$API_VERSION/comments"
 const val ADD_COMMENT = "$COMMENT/add"
 const val LIKE_COMMENT = "$COMMENT/like"
 const val REMOVE_LIKE_OF_COMMENT = "$COMMENT/dislike"
-
+const val REMOVE_ALL_POSTS_OF_DATABASE = "$POST/delete/database"
 
 
 @Location(CREATE_POST)
@@ -39,6 +39,9 @@ class PostCreateRoute
 
 @Location("$DELETE_ALL_POST_OF_USER/{email}")
 class PostAllDeleteRoute(val email:String)
+
+@Location(REMOVE_ALL_POSTS_OF_DATABASE)
+class PostClearTableRoute()
 
 @Location("$GET_SINGLE_POST/{postId}")
 class PostGetSingleRoute(val postId:String)
@@ -237,7 +240,6 @@ fun Route.PostRoutes(){
             } catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict, SimpleResponse<Post>(false,e.message?:"Some Problem Occurred!!"))
             }
-
         }
 
 
@@ -249,10 +251,9 @@ fun Route.PostRoutes(){
 
     authenticate("admin_auth"){
         // ============== DELETE ALL POSTS OF A USER =============
-        delete<PostAllDeleteRoute> {
+        delete<PostAllDeleteRoute> { route ->
             try {
-                val email = call.principal<UserIdPrincipal>()!!.name
-                if (deleteAllPostOfUser(email)) {
+                if (deleteAllPostOfUser(route.email)) {
                     call.respond(
                         HttpStatusCode.OK,
                         SimpleResponse<String>(
@@ -284,6 +285,28 @@ fun Route.PostRoutes(){
 
 
 
+        // ===================== DELETE ALL POST OF DATABASE ===============
+
+        delete<PostClearTableRoute> {
+            try {
+                call.respond(
+                    HttpStatusCode.OK,
+                    SimpleResponse<String>(
+                        true,
+                        "",
+                        "Successfully Deleted ${deleteAllPostOfDatabase()} posts!"
+                    )
+                )
+            } catch (e: Exception) {
+                call.respond(
+                    HttpStatusCode.Conflict,
+                    SimpleResponse<String>(
+                        false,
+                        e.message ?: "Some Problem Occurred!"
+                    )
+                )
+            }
+        }
 
 
 

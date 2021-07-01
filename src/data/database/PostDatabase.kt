@@ -43,6 +43,10 @@ suspend fun deleteAllPostOfUser(email: String):Boolean{
 }
 
 
+suspend fun deleteAllPostOfDatabase():Long{
+    return postsCol.deleteMany(EMPTY_BSON).deletedCount
+}
+
 suspend fun deletePost(postId:String){
     postsCol.deleteOneById(postId)
 }

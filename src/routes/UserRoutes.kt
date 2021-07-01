@@ -49,6 +49,7 @@ class UserInfoUpdateRoute
 @Location(DELETE_ALL_USERS)
 class UserAllDeleteRoute
 
+
 @Location(DELETE_SINGLE_USER)
 class UserSingleDeleteRoute
 
