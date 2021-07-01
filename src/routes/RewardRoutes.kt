@@ -125,7 +125,7 @@ fun Route.RewardRoutes(){
             }
         }
 
-        get {
+        get<RewardUserGetRoute>{
             try {
                 val email = call.principal<UserIdPrincipal>()!!.name
                 call.respond(HttpStatusCode.OK,SimpleResponse<List<Reward>>(true,"", getRewardsOfUser(email)))
