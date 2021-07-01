@@ -13,16 +13,8 @@ import java.util.*
 suspend fun uploadPost(post: Post):Boolean {
     if(checkIfUserExists(post.createdBy.email)){
         val isPostUploaded = postsCol.insertOne(post).wasAcknowledged()
-        val isPostCountIncremented = usersCol.updateOne(
-            User::userInfo / UserInfo::email eq post.createdBy.email, inc(
-                User::postCount,1)
-        ).wasAcknowledged()
 
-        if(!isPostCountIncremented){
-            postsCol.deleteOne(Post::id eq post.id)
-        }
-
-        return isPostUploaded && isPostCountIncremented
+        return isPostUploaded
     }
     return false
 }

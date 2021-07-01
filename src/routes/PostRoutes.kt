@@ -32,6 +32,7 @@ const val ADD_COMMENT = "$COMMENT/add"
 const val LIKE_COMMENT = "$COMMENT/like"
 const val REMOVE_LIKE_OF_COMMENT = "$COMMENT/dislike"
 const val REMOVE_ALL_POSTS_OF_DATABASE = "$POST/delete/database"
+const val DELETE_SINGLE_POST = "$POST/delete/single"
 
 
 @Location(CREATE_POST)
@@ -39,6 +40,9 @@ class PostCreateRoute
 
 @Location("$DELETE_ALL_POST_OF_USER/{email}")
 class PostAllDeleteRoute(val email:String)
+
+@Location("$DELETE_SINGLE_POST/{postId}")
+class PostSingleDeleteRoute(val postId: String)
 
 @Location(REMOVE_ALL_POSTS_OF_DATABASE)
 class PostClearTableRoute()
@@ -122,6 +126,29 @@ fun Route.PostRoutes(){
             }
         }
 
+
+        // ========== DELETE POST ==============
+        delete<PostSingleDeleteRoute> { route->
+
+            try{
+
+                val post = getPostById(route.postId)
+                val email = call.principal<UserIdPrincipal>()!!.name
+                if(post != null && post.createdBy.email == email){
+
+                    deletePost(route.postId)
+                    call.respond(HttpStatusCode.OK,SimpleResponse<String>(true,"","Post deleted Successfully!"))
+
+                } else {
+                    call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't Delete Post"))
+                }
+
+
+            }catch (e:Exception){
+                call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,e.message?:"Can't Delete Post"))
+            }
+
+        }
 
 
 
