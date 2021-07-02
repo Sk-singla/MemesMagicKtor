@@ -38,15 +38,17 @@ fun Route.FeedRoute(){
                 for(following in user.followings){
                     posts.addAll(getAllPostsOfUser(following.email))
                 }
+
                 if(posts.isNotEmpty()) {
+                    posts.shuffle()
                     call.respond(
                         HttpStatusCode.OK,
-                        SimpleResponse(true, "", posts.shuffle())
+                        SimpleResponse<List<Post>>(true, "",posts)
                     )
                 } else {
                     call.respond(
                         HttpStatusCode.Conflict,
-                        SimpleResponse<String>(false, "You don't follow Anyone!")
+                        SimpleResponse<List<Post>>(false, "You don't follow Anyone!")
                     )
                 }
             }catch (e:Exception){
