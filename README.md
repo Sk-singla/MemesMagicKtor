@@ -1,3 +1,3 @@
 # MemesMagicKtor
 
-###Backend for Meme's Magic App
+##Backend for Meme's Magic App
