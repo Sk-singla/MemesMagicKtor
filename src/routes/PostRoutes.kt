@@ -135,9 +135,12 @@ fun Route.PostRoutes(){
                 val post = getPostById(route.postId)
                 val email = call.principal<UserIdPrincipal>()!!.name
                 if(post != null && post.createdBy.email == email){
+                    if(deletePost(route.postId) && decrementPostCount(email))
+                        call.respond(HttpStatusCode.OK,SimpleResponse<String>(true,"","Post deleted Successfully!"))
 
-                    deletePost(route.postId)
-                    call.respond(HttpStatusCode.OK,SimpleResponse<String>(true,"","Post deleted Successfully!"))
+                    else {
+                        call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't Delete Post!"))
+                    }
 
                 } else {
                     call.respond(HttpStatusCode.Conflict,SimpleResponse<String>(false,"Can't Delete Post"))

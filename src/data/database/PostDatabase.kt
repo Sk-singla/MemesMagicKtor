@@ -39,8 +39,8 @@ suspend fun deleteAllPostOfDatabase():Long{
     return postsCol.deleteMany(EMPTY_BSON).deletedCount
 }
 
-suspend fun deletePost(postId:String){
-    postsCol.deleteOneById(postId)
+suspend fun deletePost(postId:String):Boolean{
+    return postsCol.deleteOneById(postId).wasAcknowledged()
 }
 
 suspend fun addPostLike(userInfo: UserInfo, postId: String):Boolean{

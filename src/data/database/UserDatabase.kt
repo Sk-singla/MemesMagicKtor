@@ -40,6 +40,13 @@ fun incrementPostCount(email: String):Boolean{
     ).wasAcknowledged()
 }
 
+fun decrementPostCount(email: String):Boolean{
+    return usersCol.updateOne(
+        User::userInfo / UserInfo::email eq email,
+        inc(User::postCount,-1)
+    ).wasAcknowledged()
+}
+
 
 fun addFollower(user: UserInfo, follower: UserInfo):Boolean{
     return usersCol.updateOne(
