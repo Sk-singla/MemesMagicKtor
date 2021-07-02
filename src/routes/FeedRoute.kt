@@ -39,14 +39,13 @@ fun Route.FeedRoute(){
                     posts.addAll(getAllPostsOfUser(following.email))
                 }
                 if(posts.isNotEmpty()) {
-
                     call.respond(
                         HttpStatusCode.OK,
                         SimpleResponse(true, "", posts.shuffle())
                     )
                 } else {
                     call.respond(
-                        HttpStatusCode.OK,
+                        HttpStatusCode.Conflict,
                         SimpleResponse<String>(false, "You don't follow Anyone!")
                     )
                 }
